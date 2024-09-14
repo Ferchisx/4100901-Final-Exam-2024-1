@@ -84,8 +84,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		if (usart2_data >= '0' && usart2_data <= '9') {
 			ring_buffer_write(&usart2_rb, usart2_data);
 			if (ring_buffer_is_full(&usart2_rb) != 0) {
-				char *usart2_nums = string(&usart2_rb);
-				print(usart2_nums);
+				char *usart2_nums = string(&usart2_rb);	//get the numbers from the usart2 buffer as a string
+				print(usart2_nums);	//send the string to the OLED
 			}
 		}
 		HAL_UART_Receive_IT(&huart2, &usart2_data, 1);
@@ -95,16 +95,23 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	if (GPIO_Pin == B1_Pin) {
-
+		int suma = sum(usart2_buffer, keypad_buffer);
+		printf(suma);
 		return;
 	}
 	uint8_t key_pressed = keypad_scan(GPIO_Pin);
 	if (key_pressed != 0xFF  && key_pressed>='0' && key_pressed<='9') {
 		ring_buffer_write(&keypad_rb, keypad_data);
 		if (ring_buffer_is_full(&keypad_rb) != 0) {
-			char *keypad_nums = string(&keypad_rb);
-			print(keypad_nums);
+			char *keypad_nums = string(&keypad_rb);	//get the numbers from the keypad buffer as a string
+			print(keypad_nums);	//send the string to the OLED
 		}
+	}
+	if (key_pressed == '#'){
+		ring_buffer_reset(&usart2_rb);	//reset the usart2 buffer
+	}
+	if (key_pressed == '*'){
+		ring_buffer_reset(&keypad_rb);	//reset the keypad buffer
 	}
 }
 /* USER CODE END 0 */

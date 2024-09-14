@@ -16,5 +16,6 @@
 
 char* string(ring_buffer_t *rb);
 void print(char* string);
+int sum(uint8_t *uart2_buffer, uint8_t *keypad_buffer);
 
 #endif /* INC_CONTROL_H_ */
