@@ -23,11 +23,9 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 
-#include "ssd1306.h"
-#include "ssd1306_fonts.h"
-
 #include "ring_buffer.h"
 #include "keypad.h"
+#include "control.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,11 +53,13 @@ UART_HandleTypeDef huart2;
 uint8_t keypad_data = 0xFF;
 uint8_t keypad_buffer[KEYPAD_RB_LEN];
 ring_buffer_t keypad_rb;
+char keypad_nums;
 
-#define USART2_RB_LEN 4
+#define USART2_RB_LEN 6
 uint8_t usart2_data = 0xFF;
 uint8_t usart2_buffer[USART2_RB_LEN];
 ring_buffer_t usart2_rb;
+char usart2_nums;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -85,8 +85,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	if (huart->Instance == USART2) {
 		if (usart2_data >= '0' && usart2_data <= '9') {
 			ring_buffer_write(&usart2_rb, usart2_data);
-			if (ring_buffer_is_full(&keypad_rb) != 0) {
-
+			if (ring_buffer_is_full(&usart2_rb) != 0) {
+				usart2_nums = string(&usart2_rb);
 			}
 		}
 		HAL_UART_Receive_IT(&huart2, &usart2_data, 1);
@@ -100,10 +100,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		return;
 	}
 	uint8_t key_pressed = keypad_scan(GPIO_Pin);
-	if (key_pressed != 0xFF) {
+	if (key_pressed != 0xFF  && key_pressed>='0' && key_pressed<='9') {
 		ring_buffer_write(&keypad_rb, keypad_data);
 		if (ring_buffer_is_full(&keypad_rb) != 0) {
-
+			keypad_nums = string(&keypad_rb);
 		}
 	}
 }
@@ -275,7 +275,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
+  huart2.Init.BaudRate = 256000;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
