@@ -96,7 +96,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	if (GPIO_Pin == B1_Pin) {
 		int suma = sum(usart2_buffer, keypad_buffer);
-		printf(suma);
+		printf("Suma: %d",suma);
+		ssd1306_Fill(Black);
+		ssd1306_SetCursor(30,30);
+		ssd1306_WriteData(suma, 10);
+		ssd1306_UpdateScreen();
 		return;
 	}
 	uint8_t key_pressed = keypad_scan(GPIO_Pin);

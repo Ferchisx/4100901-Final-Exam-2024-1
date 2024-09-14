@@ -5,6 +5,7 @@
  *      Author: Felipe
  */
 #include <control.h>
+#include <main.h>
 
 /*The idea of the following function is to get the numbers in the indicated buffer
  * and store them as a string, returning the string to later work with it*/
