@@ -19,3 +19,18 @@ char* string(ring_buffer_t *rb){
 	nums[i] = '\0';
 	return nums;
 }
+
+void print(char* string){
+	if(string == 'keypad_nums'){
+		ssd1306_Fill(Black);
+		ssd1306_SetCursor(30,20);
+		ssd1306_WriteString(string,Font_7x10,White);
+		ssd1306_UpdateScreen();
+	}
+	else if(string == 'usart2_nums'){
+		ssd1306_Fill(Black);
+		ssd1306_SetCursor(15,20);
+		ssd1306_WriteString(string,Font_7x10,White);
+		ssd1306_UpdateScreen();
+	}
+}

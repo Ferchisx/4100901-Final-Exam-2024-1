@@ -15,6 +15,6 @@
 #include "ssd1306_fonts.h"
 
 char* string(ring_buffer_t *rb);
-void keypad_dig(void);
+void print(char* string);
 
 #endif /* INC_CONTROL_H_ */
