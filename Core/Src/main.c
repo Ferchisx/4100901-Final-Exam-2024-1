@@ -58,6 +58,8 @@ ring_buffer_t keypad_rb;
 uint8_t usart2_data = 0xFF;
 uint8_t usart2_buffer[USART2_RB_LEN];
 ring_buffer_t usart2_rb;
+
+int suma = 0xFF;	//variable to save the sum value
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -82,7 +84,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	/* Data received in USART2 */
 	if (huart->Instance == USART2) {
 		if (usart2_data >= '0' && usart2_data <= '9') {
-			ring_buffer_write(&usart2_rb, usart2_data);
+			ring_buffer_write(&usart2_rb, usart2_data);	//Write entered numbers into the usart2 buffer
 			if (ring_buffer_is_full(&usart2_rb) != 0) {
 				char *usart2_nums = string(&usart2_rb);	//get the numbers from the usart2 buffer as a string
 				print(usart2_nums);	//send the string to the OLED
@@ -95,15 +97,17 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	if (GPIO_Pin == B1_Pin) {
-		int suma = sum(usart2_buffer, keypad_buffer);
-		printf("Suma: %d",suma);
+		int suma = sum(usart2_buffer, keypad_buffer);	//Call the sum function
+		printf("Suma: %d",suma);	//Send this value to YAT trough USART2
+
+		//Print in the OLED
 		ssd1306_Fill(Black);
 		ssd1306_SetCursor(30,30);
 		ssd1306_WriteData(suma, 10);
 		ssd1306_UpdateScreen();
 		return;
 	}
-	uint8_t key_pressed = keypad_scan(GPIO_Pin);
+	uint8_t key_pressed = keypad_scan(GPIO_Pin);	//Scan the pressed value in the KeyPad
 	if (key_pressed != 0xFF  && key_pressed>='0' && key_pressed<='9') {
 		ring_buffer_write(&keypad_rb, keypad_data);
 		if (ring_buffer_is_full(&keypad_rb) != 0) {
@@ -166,6 +170,14 @@ int main(void)
   printf("Starting\r\n");
   while (1)
   {
+	  if(suma != 0xFF){
+		  if (suma % 2 == 0) {
+			  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, 1);	//Turning ON the LED if the sum is even
+		  } else {
+			  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, 0);	//Turning OFF the LED if the sum is odd
+
+		  }
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
